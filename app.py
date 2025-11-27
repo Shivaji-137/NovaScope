@@ -590,7 +590,7 @@ with preview_tab:
             key="fits_preview_scale",
         )
         styled_fits_image = _stylize_fits_image(image_array, color_choice, scale_choice)
-        st.image(styled_fits_image, width=600)
+        st.image(styled_fits_image, width=550)
 
     if selection_mode == "Table editor":
         st.markdown("#### Column selector")
