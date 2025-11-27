@@ -590,7 +590,7 @@ with preview_tab:
             key="fits_preview_scale",
         )
         styled_fits_image = _stylize_fits_image(image_array, color_choice, scale_choice)
-        st.image(styled_fits_image, use_column_width=True)
+        st.image(styled_fits_image, width=600)
 
     if selection_mode == "Table editor":
         st.markdown("#### Column selector")
@@ -675,7 +675,7 @@ with chart_tab:
     display_image = styled_fits_image if styled_fits_image is not None else image_array
     if display_image is not None:
         st.markdown("##### FITS image")
-        st.image(display_image, use_column_width=True)
+        st.image(display_image, width=600)
         image_shown = True
 
     if not plot_ready:
