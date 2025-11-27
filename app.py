@@ -150,6 +150,34 @@ CUSTOM_CSS = """
 .stMetricDelta {
     color: var(--brand-secondary) !important;
 }
+
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(2,6,23,0.98));
+    border-right: 1px solid rgba(148,163,184,0.2);
+}
+
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
+    color: #f8fafc;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(99,102,241,0.3);
+    margin-bottom: 1rem;
+}
+
+[data-testid="stSidebar"] .stSelectbox label,
+[data-testid="stSidebar"] .stMultiSelect label,
+[data-testid="stSidebar"] .stRadio label,
+[data-testid="stSidebar"] .stCheckbox label {
+    color: #e2e8f0;
+    font-weight: 500;
+}
+
+[data-testid="stSidebar"] [data-testid="stFileUploader"] {
+    background: rgba(99,102,241,0.1);
+    border: 1px dashed rgba(99,102,241,0.4);
+    border-radius: 0.75rem;
+    padding: 1rem;
+}
 </style>
 """
 
