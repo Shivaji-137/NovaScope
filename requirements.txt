@@ -1,0 +1,9 @@
+streamlit>=1.31
+pandas>=2.1
+numpy>=1.24
+plotly>=5.18
+matplotlib>=3.8
+seaborn>=0.13
+astropy>=6.0
+h5py>=3.9
+pytest>=7.4
