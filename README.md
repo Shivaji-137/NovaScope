@@ -55,7 +55,7 @@ I work with a lot of data from different sources—simulations, telescope observ
 ## Project structure
 
 ```
-plot_graph/
+NovaScope/
 ├── app.py                 # Streamlit UI + layout
 ├── plotter/
 │   ├── __init__.py
