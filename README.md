@@ -2,6 +2,8 @@
 
 NovaScope is a Streamlit dashboard I use to turn raw scientific datasets into clean, interactive plots within a couple of clicks. Drop in **CSV**, **TXT**, **DAT**, **NPZ**, **FITS**, or **HDF5** files, pick a plot style, and the visuals update immediately.
 
+streamlit apps: [https://novascope-datavisualization.streamlit.app/](https://novascope-datavisualization.streamlit.app/)
+
 ## Why this exists
 
 I work with a lot of data from different sources—simulations, telescope observations, and lab equipment. Every time I got a new file, I had to write custom code just to see a basic chart. This wasted time and slowed down my actual work. NovaScope fixes that problem: just drop in your file, look at your data, and pick the chart you want. No coding required unless you want to customize something.
