@@ -256,8 +256,23 @@ def _load_fits(file_buffer: BytesIO) -> Dict[str, pd.DataFrame]:
                 if callable(to_pandas):
                     df = to_pandas()
                 else:
-                    records = data.tolist()
-                    df = pd.DataFrame.from_records(records, columns=hdu.columns.names)
+                    # Handle multi-dimensional columns in FITS tables
+                    records = {}
+                    for col_name in hdu.columns.names:
+                        col_data = data[col_name]
+                        if isinstance(col_data[0] if len(col_data) > 0 else None, np.ndarray):
+                            # Multi-dimensional column - flatten or expand
+                            if col_data[0].ndim == 1:
+                                # 1D array: create separate columns for each element
+                                for i in range(len(col_data[0])):
+                                    records[f"{col_name}_{i}"] = [row[i] for row in col_data]
+                            else:
+                                # Higher dimensional: convert to string representation
+                                records[col_name] = [str(arr) for arr in col_data]
+                        else:
+                            # Scalar column
+                            records[col_name] = col_data.tolist()
+                    df = pd.DataFrame(records)
                 if not df.empty:
                     label = _fits_dataset_label(hdu, idx)
                     df.attrs["dataset_path"] = label
@@ -273,6 +288,8 @@ def _load_fits(file_buffer: BytesIO) -> Dict[str, pd.DataFrame]:
                 frames[label] = df
             if header and len(header) > 0:
                 header_df = pd.DataFrame(list(header.items()), columns=["keyword", "value"])
+                # Convert mixed-type value column to string for Arrow compatibility
+                header_df["value"] = header_df["value"].apply(lambda x: str(x) if x is not None else "").astype("string")
                 label = _fits_dataset_label(hdu, idx)
                 header_df.attrs["dataset_path"] = f"{label}/header"
                 frames[f"{label}/header"] = header_df

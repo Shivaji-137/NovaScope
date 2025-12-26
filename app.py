@@ -247,6 +247,13 @@ def _render_footer() -> None:
 def _prepare_preview(df: pd.DataFrame, limit: int = 200) -> pd.DataFrame:
     preview = df.head(limit).copy()
     
+    # Clear any metadata that might contain non-serializable objects
+    if hasattr(preview, 'attrs'):
+        preview.attrs = {}
+    
+    # Reset index to avoid issues with complex index types
+    preview = preview.reset_index(drop=True)
+    
     for col in preview.columns:
         dtype = preview[col].dtype
         
@@ -257,10 +264,14 @@ def _prepare_preview(df: pd.DataFrame, limit: int = 200) -> pd.DataFrame:
         # Convert object columns - check for arrays or complex types
         elif dtype == 'object':
             # Check if column contains arrays or other non-serializable objects
-            sample = preview[col].iloc[0] if len(preview) > 0 else None
-            if isinstance(sample, (np.ndarray, list)):
-                preview[col] = preview[col].apply(lambda x: str(x) if x is not None else None)
-            preview[col] = preview[col].astype("string")
+            try:
+                sample = preview[col].iloc[0] if len(preview) > 0 and preview[col].notna().any() else None
+                if sample is not None and isinstance(sample, (np.ndarray, list)):
+                    preview[col] = preview[col].apply(lambda x: str(x) if x is not None else None)
+                preview[col] = preview[col].astype("string")
+            except:
+                # If conversion fails, convert to string representation
+                preview[col] = preview[col].apply(lambda x: str(x) if pd.notna(x) else None).astype("string")
         
         # Convert any other extension dtypes to base types
         elif hasattr(dtype, 'numpy_dtype'):
@@ -275,6 +286,13 @@ def _prepare_preview(df: pd.DataFrame, limit: int = 200) -> pd.DataFrame:
 def _sanitize_for_stats(df: pd.DataFrame) -> pd.DataFrame:
     stats_df = df.copy()
     
+    # Clear any metadata that might contain non-serializable objects
+    if hasattr(stats_df, 'attrs'):
+        stats_df.attrs = {}
+    
+    # Reset index to avoid issues with complex index types
+    stats_df = stats_df.reset_index(drop=True)
+    
     for col in stats_df.columns:
         dtype = stats_df[col].dtype
         
@@ -284,10 +302,13 @@ def _sanitize_for_stats(df: pd.DataFrame) -> pd.DataFrame:
         
         # Convert object columns - check for arrays or complex types
         elif dtype == 'object':
-            sample = stats_df[col].iloc[0] if len(stats_df) > 0 else None
-            if isinstance(sample, (np.ndarray, list)):
-                stats_df[col] = stats_df[col].apply(lambda x: str(x) if x is not None else None)
-            stats_df[col] = stats_df[col].astype("string")
+            try:
+                sample = stats_df[col].iloc[0] if len(stats_df) > 0 and stats_df[col].notna().any() else None
+                if sample is not None and isinstance(sample, (np.ndarray, list)):
+                    stats_df[col] = stats_df[col].apply(lambda x: str(x) if x is not None else None)
+                stats_df[col] = stats_df[col].astype("string")
+            except:
+                stats_df[col] = stats_df[col].apply(lambda x: str(x) if pd.notna(x) else None).astype("string")
         
         # Convert any other extension dtypes to base types
         elif hasattr(dtype, 'numpy_dtype'):
