@@ -246,17 +246,56 @@ def _render_footer() -> None:
 
 def _prepare_preview(df: pd.DataFrame, limit: int = 200) -> pd.DataFrame:
     preview = df.head(limit).copy()
-    object_cols = preview.select_dtypes(include=["object"]).columns
-    if len(object_cols) > 0:
-        preview[object_cols] = preview[object_cols].astype("string")
+    
+    for col in preview.columns:
+        dtype = preview[col].dtype
+        
+        # Convert nullable integer types to regular int or float
+        if pd.api.types.is_integer_dtype(dtype) and hasattr(dtype, 'name') and dtype.name.startswith('Int'):
+            preview[col] = preview[col].astype('float64')
+        
+        # Convert object columns - check for arrays or complex types
+        elif dtype == 'object':
+            # Check if column contains arrays or other non-serializable objects
+            sample = preview[col].iloc[0] if len(preview) > 0 else None
+            if isinstance(sample, (np.ndarray, list)):
+                preview[col] = preview[col].apply(lambda x: str(x) if x is not None else None)
+            preview[col] = preview[col].astype("string")
+        
+        # Convert any other extension dtypes to base types
+        elif hasattr(dtype, 'numpy_dtype'):
+            try:
+                preview[col] = preview[col].astype(dtype.numpy_dtype)
+            except:
+                preview[col] = preview[col].astype("string")
+    
     return preview
 
 
 def _sanitize_for_stats(df: pd.DataFrame) -> pd.DataFrame:
     stats_df = df.copy()
-    object_cols = stats_df.select_dtypes(include=["object"]).columns
-    if len(object_cols) > 0:
-        stats_df[object_cols] = stats_df[object_cols].astype("string")
+    
+    for col in stats_df.columns:
+        dtype = stats_df[col].dtype
+        
+        # Convert nullable integer types to regular float
+        if pd.api.types.is_integer_dtype(dtype) and hasattr(dtype, 'name') and dtype.name.startswith('Int'):
+            stats_df[col] = stats_df[col].astype('float64')
+        
+        # Convert object columns - check for arrays or complex types
+        elif dtype == 'object':
+            sample = stats_df[col].iloc[0] if len(stats_df) > 0 else None
+            if isinstance(sample, (np.ndarray, list)):
+                stats_df[col] = stats_df[col].apply(lambda x: str(x) if x is not None else None)
+            stats_df[col] = stats_df[col].astype("string")
+        
+        # Convert any other extension dtypes to base types
+        elif hasattr(dtype, 'numpy_dtype'):
+            try:
+                stats_df[col] = stats_df[col].astype(dtype.numpy_dtype)
+            except:
+                stats_df[col] = stats_df[col].astype("string")
+    
     return stats_df
 
 
